@@ -1,0 +1,125 @@
+{
+  "name": "government-support-matching-platform",
+  "version": "1.4.0",
+  "description": "정부지원사업 매칭 에이전트 플랫폼 - 92% 매칭 정확도로 기업 특성을 분석하여 실제 지원 가능한 정부지원사업을 정확하게 매칭해주는 AI 서비스",
+  "type": "spa-application",
+  "framework": "react-typescript",
+  "buildDate": "2024-12-19",
+  
+  "features": {
+    "core": [
+      "AI 매칭 엔진 (92% 정확도)",
+      "실시간 정부지원사업 매칭",
+      "기업 특성 종합 분석",
+      "구체적인 선정 가능성 제공"
+    ],
+    "subscription": [
+      "3단계 구독 플랜 시스템",
+      "베이직/프리미엄/엔터프라이즈",
+      "구독 상태 관리",
+      "플랜 변경 기능"
+    ],
+    "promotion": [
+      "프로모션 코드 생성/관리",
+      "할인 혜택 적용",
+      "사용 내역 추적",
+      "관리자 프로모션 관리"
+    ],
+    "admin": [
+      "종합 관리자 대시보드",
+      "사용자/지원사업/바우쳐 관리",
+      "매칭 현황 분석",
+      "세일즈 퍼널 관리"
+    ]
+  },
+  
+  "pages": {
+    "user": [
+      "MainPage - 메인 랜딩페이지",
+      "LoginPage - 로그인",
+      "SignupPage - 회원가입", 
+      "MyPage - 마이페이지",
+      "MatchingPage - 매칭 결과",
+      "SuccessPage - 성공 페이지",
+      "GuidePage - 가이드"
+    ],
+    "admin": [
+      "AdminPage - 관리자 대시보드"
+    ]
+  },
+  
+  "components": {
+    "total": 42,
+    "ui": 35,
+    "business": 7,
+    "custom": [
+      "PromoCodeInput",
+      "PromoCodeManagement", 
+      "SubscriptionPlans",
+      "SubscriptionModal",
+      "CustomerFunnelManagement",
+      "VoucherProviderManagement",
+      "MatchingDetailModal"
+    ]
+  },
+  
+  "designSystem": {
+    "primaryColor": "#58d674",
+    "theme": "Figma 원형 기하학적 패턴",
+    "responsive": true,
+    "colorScheme": "light/dark",
+    "typography": "기본 한글 타이포그래피"
+  },
+  
+  "techStack": {
+    "frontend": {
+      "react": "18+",
+      "typescript": "latest",
+      "tailwindcss": "v4",
+      "shadcn-ui": "latest"
+    },
+    "libraries": {
+      "icons": "lucide-react",
+      "charts": "recharts", 
+      "animations": "motion/react",
+      "notifications": "sonner@2.0.3",
+      "forms": "react-hook-form@7.55.0"
+    }
+  },
+  
+  "architecture": {
+    "pattern": "Component-Based Architecture",
+    "stateManagement": "React Context API",
+    "routing": "Custom Router Component",
+    "styling": "Tailwind CSS + Design Tokens"
+  },
+  
+  "metrics": {
+    "matchingAccuracy": "92%",
+    "supportedPrograms": "500+",
+    "userSatisfaction": "높음",
+    "loadTime": "< 2초"
+  },
+  
+  "businessModel": {
+    "strategy": "마중물 전략",
+    "freeService": "기본 매칭 서비스",
+    "revenue": "AI 솔루션 판매",
+    "targetMarket": "중소기업, 스타트업"
+  },
+  
+  "changelog": {
+    "v1.4.0": "플랫폼 전체 UI/UX 대폭 개선 및 탭 통합",
+    "v1.3.1": "나의 매칭정보 UI/UX 개선 및 카드 테두리 강화",
+    "v1.3.0": "구독 및 프로모션 시스템 통합",
+    "v1.2.0": "관리자 시스템 구축", 
+    "v1.1.0": "AI 매칭 시스템 구현",
+    "v1.0.0": "플랫폼 기반 구조 구축"
+  },
+  
+  "roadmap": {
+    "v1.4.0": "Supabase 백엔드 통합",
+    "v1.5.0": "실시간 데이터베이스 연동",
+    "v2.0.0": "PWA 및 모바일 앱 지원"
+  }
+}
