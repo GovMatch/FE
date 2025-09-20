@@ -14,9 +14,10 @@ import { imgGroup47242, imgGroup47243 } from "../imports/svg-gjy2d";
 
 interface MainPageProps {
   onNavigate: (page: PageType, programId?: string) => void;
+  currentPage?: PageType;
 }
 
-export function MainPage({ onNavigate }: MainPageProps) {
+export function MainPage({ onNavigate, currentPage }: MainPageProps) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 relative overflow-x-hidden">
       {/* Geometric Background Pattern */}
@@ -62,7 +63,7 @@ export function MainPage({ onNavigate }: MainPageProps) {
 
       {/* Content overlay with glass effect */}
       <div className="relative z-10">
-        <Header onNavigate={onNavigate} />
+        <Header onNavigate={onNavigate} currentPage={currentPage} />
         
         {/* Hero section with enhanced background */}
         <div className="relative">

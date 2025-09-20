@@ -31,6 +31,7 @@ import type { PageType } from "../components/Router";
 interface ProgramDetailPageProps {
   onNavigate: (page: PageType, programId?: string) => void;
   programId?: string;
+  currentPage?: PageType;
 }
 
 interface ApiProgramDetail {
@@ -59,7 +60,7 @@ interface ApiProgramDetail {
   createdAt: string;
 }
 
-export function ProgramDetailPage({ onNavigate, programId }: ProgramDetailPageProps) {
+export function ProgramDetailPage({ onNavigate, programId, currentPage }: ProgramDetailPageProps) {
   const [programData, setProgramData] = useState<ApiProgramDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -189,7 +190,7 @@ export function ProgramDetailPage({ onNavigate, programId }: ProgramDetailPagePr
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      <Header onNavigate={onNavigate} />
+      <Header onNavigate={onNavigate} currentPage={currentPage} />
 
       <div className="py-8 px-4">
         <div className="max-w-6xl mx-auto">

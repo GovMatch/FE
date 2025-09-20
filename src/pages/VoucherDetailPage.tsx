@@ -32,9 +32,10 @@ import type { PageType } from "../components/Router";
 
 interface VoucherDetailPageProps {
   onNavigate: (page: PageType, programId?: string) => void;
+  currentPage?: PageType;
 }
 
-export function VoucherDetailPage({ onNavigate }: VoucherDetailPageProps) {
+export function VoucherDetailPage({ onNavigate, currentPage }: VoucherDetailPageProps) {
   // 실제로는 라우팅 파라미터나 상태를 통해 받아올 데이터
   const voucherData = {
     id: "1",
@@ -170,7 +171,7 @@ export function VoucherDetailPage({ onNavigate }: VoucherDetailPageProps) {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      <Header onNavigate={onNavigate} />
+      <Header onNavigate={onNavigate} currentPage={currentPage} />
       
       <div className="py-8 px-4">
         <div className="max-w-6xl mx-auto">

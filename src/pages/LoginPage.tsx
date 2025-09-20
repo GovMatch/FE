@@ -13,9 +13,10 @@ import type { PageType } from "../components/Router";
 
 interface LoginPageProps {
   onNavigate: (page: PageType, programId?: string) => void;
+  currentPage?: PageType;
 }
 
-export function LoginPage({ onNavigate }: LoginPageProps) {
+export function LoginPage({ onNavigate, currentPage }: LoginPageProps) {
   const { login } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -54,7 +55,7 @@ export function LoginPage({ onNavigate }: LoginPageProps) {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header onNavigate={onNavigate} />
+      <Header onNavigate={onNavigate} currentPage={currentPage} />
       
       <div className="py-16 px-4">
         <div className="max-w-md mx-auto">

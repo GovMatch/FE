@@ -15,9 +15,10 @@ import type { PageType } from "../components/Router";
 
 interface MatchingPageProps {
   onNavigate: (page: PageType, programId?: string) => void;
+  currentPage?: PageType;
 }
 
-export function MatchingPage({ onNavigate }: MatchingPageProps) {
+export function MatchingPage({ onNavigate, currentPage }: MatchingPageProps) {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
     companyName: "",
@@ -334,7 +335,7 @@ export function MatchingPage({ onNavigate }: MatchingPageProps) {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header onNavigate={onNavigate} />
+      <Header onNavigate={onNavigate} currentPage={currentPage} />
       
       <div className="py-8 px-4">
         <div className="max-w-4xl mx-auto">

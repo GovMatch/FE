@@ -41,9 +41,10 @@ import type { PageType } from "../components/Router";
 
 interface MyPageProps {
   onNavigate: (page: PageType, programId?: string) => void;
+  currentPage?: PageType;
 }
 
-export function MyPage({ onNavigate }: MyPageProps) {
+export function MyPage({ onNavigate, currentPage }: MyPageProps) {
   const [selectedTab, setSelectedTab] = useState("matching");
   const [isSubscriptionModalOpen, setIsSubscriptionModalOpen] = useState(false);
   const [voucherPreferences, setVoucherPreferences] = useState({
@@ -240,7 +241,7 @@ export function MyPage({ onNavigate }: MyPageProps) {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header onNavigate={onNavigate} />
+      <Header onNavigate={onNavigate} currentPage={currentPage} />
       
       <div className="py-8 px-4">
         <div className="max-w-6xl mx-auto">

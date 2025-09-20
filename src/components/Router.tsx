@@ -29,27 +29,27 @@ export function Router({ currentPage, onNavigate }: RouterProps) {
   const renderPage = () => {
     switch (currentPage) {
       case 'main':
-        return <MainPage onNavigate={handleNavigate} />;
+        return <MainPage onNavigate={handleNavigate} currentPage={currentPage} />;
       case 'matching':
-        return <MatchingPage onNavigate={handleNavigate} />;
+        return <MatchingPage onNavigate={handleNavigate} currentPage={currentPage} />;
       case 'guide':
-        return <GuidePage onNavigate={handleNavigate} />;
+        return <GuidePage onNavigate={handleNavigate} currentPage={currentPage} />;
       case 'success':
-        return <SuccessPage onNavigate={handleNavigate} />;
+        return <SuccessPage onNavigate={handleNavigate} currentPage={currentPage} />;
       case 'admin':
-        return <AdminPage onNavigate={handleNavigate} />;
+        return <AdminPage onNavigate={handleNavigate} currentPage={currentPage} />;
       case 'mypage':
-        return <MyPage onNavigate={handleNavigate} />;
+        return <MyPage onNavigate={handleNavigate} currentPage={currentPage} />;
       case 'login':
-        return <LoginPage onNavigate={handleNavigate} />;
+        return <LoginPage onNavigate={handleNavigate} currentPage={currentPage} />;
       case 'signup':
-        return <SignupPage onNavigate={handleNavigate} />;
+        return <SignupPage onNavigate={handleNavigate} currentPage={currentPage} />;
       case 'program-detail':
-        return <ProgramDetailPage onNavigate={handleNavigate} programId={selectedProgramId} />;
+        return <ProgramDetailPage onNavigate={handleNavigate} programId={selectedProgramId} currentPage={currentPage} />;
       case 'voucher-detail':
-        return <VoucherDetailPage onNavigate={handleNavigate} />;
+        return <VoucherDetailPage onNavigate={handleNavigate} currentPage={currentPage} />;
       default:
-        return <MainPage onNavigate={handleNavigate} />;
+        return <MainPage onNavigate={handleNavigate} currentPage={currentPage} />;
     }
   };
 

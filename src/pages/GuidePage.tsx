@@ -9,9 +9,10 @@ import type { PageType } from "../components/Router";
 
 interface GuidePageProps {
   onNavigate: (page: PageType, programId?: string) => void;
+  currentPage?: PageType;
 }
 
-export function GuidePage({ onNavigate }: GuidePageProps) {
+export function GuidePage({ onNavigate, currentPage }: GuidePageProps) {
   const guideSteps = [
     {
       icon: FileText,
@@ -114,7 +115,7 @@ export function GuidePage({ onNavigate }: GuidePageProps) {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header onNavigate={onNavigate} />
+      <Header onNavigate={onNavigate} currentPage={currentPage} />
       
       <div className="py-8 px-4">
         <div className="max-w-6xl mx-auto">

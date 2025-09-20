@@ -25,9 +25,10 @@ import type { PageType } from "../components/Router";
 
 interface SignupPageProps {
   onNavigate: (page: PageType, programId?: string) => void;
+  currentPage?: PageType;
 }
 
-export function SignupPage({ onNavigate }: SignupPageProps) {
+export function SignupPage({ onNavigate, currentPage }: SignupPageProps) {
   const [currentStep, setCurrentStep] = useState(1);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -471,7 +472,7 @@ export function SignupPage({ onNavigate }: SignupPageProps) {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header onNavigate={onNavigate} />
+      <Header onNavigate={onNavigate} currentPage={currentPage} />
       
       <div className="py-8 px-4">
         <div className="max-w-2xl mx-auto">

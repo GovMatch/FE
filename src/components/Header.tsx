@@ -6,9 +6,10 @@ import { useAuth } from "./AuthContext";
 
 interface HeaderProps {
   onNavigate: (page: PageType, programId?: string) => void;
+  currentPage?: PageType;
 }
 
-export function Header({ onNavigate }: HeaderProps) {
+export function Header({ onNavigate, currentPage }: HeaderProps) {
   const { user, logout } = useAuth();
   return (
       <header className="relative z-20 px-2 sm:px-4 lg:px-8 py-3 sm:py-4">
@@ -28,10 +29,10 @@ export function Header({ onNavigate }: HeaderProps) {
 
           {/* Navigation Links - 모바일에서 숨김 */}
           <div className="hidden md:flex items-center space-x-8">
-            <NavItem label="지원사업" active onClick={() => onNavigate('main')} />
-            <NavItem label="매칭하기" onClick={() => onNavigate('matching')} />
-            <NavItem label="이용가이드" onClick={() => onNavigate('guide')} />
-            <NavItem label="성공사례" onClick={() => onNavigate('success')} />
+            <NavItem label="지원사업" active={currentPage === 'main'} onClick={() => onNavigate('main')} />
+            <NavItem label="매칭하기" active={currentPage === 'matching'} onClick={() => onNavigate('matching')} />
+            <NavItem label="이용가이드" active={currentPage === 'guide'} onClick={() => onNavigate('guide')} />
+            <NavItem label="성공사례" active={currentPage === 'success'} onClick={() => onNavigate('success')} />
           </div>
 
           {/* Action Icons */}

@@ -36,9 +36,10 @@ import type { PageType } from "../components/Router";
 
 interface AdminPageProps {
   onNavigate: (page: PageType, programId?: string) => void;
+  currentPage?: PageType;
 }
 
-export function AdminPage({ onNavigate }: AdminPageProps) {
+export function AdminPage({ onNavigate, currentPage }: AdminPageProps) {
   const [selectedTab, setSelectedTab] = useState("dashboard");
 
   // Mock data

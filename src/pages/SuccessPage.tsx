@@ -9,9 +9,10 @@ import type { PageType } from "../components/Router";
 
 interface SuccessPageProps {
   onNavigate: (page: PageType, programId?: string) => void;
+  currentPage?: PageType;
 }
 
-export function SuccessPage({ onNavigate }: SuccessPageProps) {
+export function SuccessPage({ onNavigate, currentPage }: SuccessPageProps) {
   const successStories = [
     {
       id: 1,
@@ -116,7 +117,7 @@ export function SuccessPage({ onNavigate }: SuccessPageProps) {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header onNavigate={onNavigate} />
+      <Header onNavigate={onNavigate} currentPage={currentPage} />
       
       <div className="py-8 px-4">
         <div className="max-w-7xl mx-auto">
