@@ -134,7 +134,7 @@ export function ProgramDetailPage({ onNavigate, programId }: ProgramDetailPagePr
         department: programData.provider?.name || "정보 없음",
         phone: programData.provider?.contact || "정보 없음",
         email: "정보 없음",
-        website: programData.provider?.website || "정보 없음",
+        website: programData.applicationUrl || "정보 없음",
         address: "정보 없음"
       }
     };
@@ -562,7 +562,12 @@ export function ProgramDetailPage({ onNavigate, programId }: ProgramDetailPagePr
                           <div className="flex items-center gap-2">
                             <ExternalLink className="w-4 h-4 text-[#58d674]" />
                             {displayData.contact.website !== "정보 없음" ? (
-                              <a href={displayData.contact.website} className="text-[#58d674] hover:underline">
+                              <a
+                                href={displayData.contact.website}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-[#58d674] hover:underline"
+                              >
                                 {displayData.contact.website}
                               </a>
                             ) : (

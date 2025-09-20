@@ -3,6 +3,7 @@ import { Card, CardContent } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { Progress } from "./ui/progress";
+import { formatDeadlineDate } from "../utils/dateFormat";
 
 interface SupportProgramProps {
   id: string;
@@ -107,7 +108,7 @@ export function SupportProgramCard({
             </div>
             <div className="flex items-center text-xs sm:text-sm">
               <Calendar className="w-3 h-3 sm:w-4 sm:h-4 text-orange-500 mr-2 flex-shrink-0" />
-              <span className="text-gray-600">{deadline}</span>
+              <span className="text-gray-600">{formatDeadlineDate(deadline)}</span>
             </div>
           </div>
 
