@@ -24,7 +24,7 @@ import {
 import type { PageType } from "../components/Router";
 
 interface SignupPageProps {
-  onNavigate: (page: PageType) => void;
+  onNavigate: (page: PageType, programId?: string) => void;
 }
 
 export function SignupPage({ onNavigate }: SignupPageProps) {

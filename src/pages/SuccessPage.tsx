@@ -8,7 +8,7 @@ import { Star, Quote, TrendingUp, Award, Users, DollarSign, Calendar, Building2,
 import type { PageType } from "../components/Router";
 
 interface SuccessPageProps {
-  onNavigate: (page: PageType) => void;
+  onNavigate: (page: PageType, programId?: string) => void;
 }
 
 export function SuccessPage({ onNavigate }: SuccessPageProps) {

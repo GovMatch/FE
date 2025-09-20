@@ -14,34 +14,42 @@ export type PageType = 'main' | 'matching' | 'guide' | 'success' | 'admin' | 'my
 
 interface RouterProps {
   currentPage: PageType;
-  onNavigate: (page: PageType) => void;
+  onNavigate: (page: PageType, programId?: string) => void;
 }
 
 export function Router({ currentPage, onNavigate }: RouterProps) {
+  const [selectedProgramId, setSelectedProgramId] = useState<string | undefined>();
+
+  const handleNavigate = (page: PageType, programId?: string) => {
+    if (page === 'program-detail' && programId) {
+      setSelectedProgramId(programId);
+    }
+    onNavigate(page, programId);
+  };
   const renderPage = () => {
     switch (currentPage) {
       case 'main':
-        return <MainPage onNavigate={onNavigate} />;
+        return <MainPage onNavigate={handleNavigate} />;
       case 'matching':
-        return <MatchingPage onNavigate={onNavigate} />;
+        return <MatchingPage onNavigate={handleNavigate} />;
       case 'guide':
-        return <GuidePage onNavigate={onNavigate} />;
+        return <GuidePage onNavigate={handleNavigate} />;
       case 'success':
-        return <SuccessPage onNavigate={onNavigate} />;
+        return <SuccessPage onNavigate={handleNavigate} />;
       case 'admin':
-        return <AdminPage onNavigate={onNavigate} />;
+        return <AdminPage onNavigate={handleNavigate} />;
       case 'mypage':
-        return <MyPage onNavigate={onNavigate} />;
+        return <MyPage onNavigate={handleNavigate} />;
       case 'login':
-        return <LoginPage onNavigate={onNavigate} />;
+        return <LoginPage onNavigate={handleNavigate} />;
       case 'signup':
-        return <SignupPage onNavigate={onNavigate} />;
+        return <SignupPage onNavigate={handleNavigate} />;
       case 'program-detail':
-        return <ProgramDetailPage onNavigate={onNavigate} />;
+        return <ProgramDetailPage onNavigate={handleNavigate} programId={selectedProgramId} />;
       case 'voucher-detail':
-        return <VoucherDetailPage onNavigate={onNavigate} />;
+        return <VoucherDetailPage onNavigate={handleNavigate} />;
       default:
-        return <MainPage onNavigate={onNavigate} />;
+        return <MainPage onNavigate={handleNavigate} />;
     }
   };
 

@@ -35,7 +35,7 @@ import {
 import type { PageType } from "../components/Router";
 
 interface AdminPageProps {
-  onNavigate: (page: PageType) => void;
+  onNavigate: (page: PageType, programId?: string) => void;
 }
 
 export function AdminPage({ onNavigate }: AdminPageProps) {

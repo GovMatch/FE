@@ -40,7 +40,7 @@ import {
 import type { PageType } from "../components/Router";
 
 interface MyPageProps {
-  onNavigate: (page: PageType) => void;
+  onNavigate: (page: PageType, programId?: string) => void;
 }
 
 export function MyPage({ onNavigate }: MyPageProps) {

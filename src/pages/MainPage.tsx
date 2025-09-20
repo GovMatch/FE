@@ -13,7 +13,7 @@ import type { PageType } from "../components/Router";
 import { imgGroup47242, imgGroup47243 } from "../imports/svg-gjy2d";
 
 interface MainPageProps {
-  onNavigate: (page: PageType) => void;
+  onNavigate: (page: PageType, programId?: string) => void;
 }
 
 export function MainPage({ onNavigate }: MainPageProps) {

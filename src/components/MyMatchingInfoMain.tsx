@@ -17,7 +17,7 @@ import { useAuth } from "./AuthContext";
 import type { PageType } from "./Router";
 
 interface MyMatchingInfoMainProps {
-  onNavigate: (page: PageType) => void;
+  onNavigate: (page: PageType, programId?: string) => void;
   className?: string;
 }
 

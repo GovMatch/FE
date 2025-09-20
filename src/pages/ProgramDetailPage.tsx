@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
 import { Button } from "../components/ui/button";
@@ -29,124 +29,174 @@ import {
 import type { PageType } from "../components/Router";
 
 interface ProgramDetailPageProps {
-  onNavigate: (page: PageType) => void;
+  onNavigate: (page: PageType, programId?: string) => void;
+  programId?: string;
 }
 
-export function ProgramDetailPage({ onNavigate }: ProgramDetailPageProps) {
-  // 실제로는 라우팅 파라미터나 상태를 통해 받아올 데이터
-  const programData = {
-    id: "1",
-    title: "2024년 청년창업사관학교 14기 모집",
-    organization: "창업진흥원",
-    category: "창업지원",
-    amount: "최대 1억원",
-    deadline: "2024.12.31",
-    daysLeft: 5,
-    description: "예비창업자 및 창업 3년 이내 기업을 대상으로 체계적인 창업교육과 사업화 자금을 지원하여 성공적인 창업 생태계 조성을 목표로 합니다.",
-    requirements: ["만 39세 이하", "사업자등록", "창업 3년 이내"],
-    matchScore: 92,
-    applicants: 156,
-    maxApplicants: 200,
-    status: "deadline-soon" as const,
-    supportPeriod: "2024.01.01 ~ 2024.12.31",
-    applicationPeriod: "2024.11.01 ~ 2024.12.31",
-    announcementDate: "2025.01.15",
-    businessStartDate: "2025.02.01",
-    tags: ["창업", "청년", "사업화", "교육"],
-    
-    // 상세 정보
-    overview: "청년창업사관학교는 창업의지가 높은 예비창업자 및 초기창업자를 대상으로 단계별 맞춤형 창업교육과 사업화 자금을 지원하는 대표적인 창업지원 프로그램입니다. 체계적인 교육과정과 실무진의 멘토링을 통해 성공적인 창업을 지원합니다.",
-    
-    supportContent: [
-      "창업교육 프로그램 (6개월)",
-      "사업화 자금 지원 (최대 1억원)",
-      "전문가 멘토링 및 컨설팅",
-      "네트워킹 및 투자유치 지원",
-      "창업공간 제공 (12개월)",
-      "후속 지원사업 연계"
-    ],
-    
-    eligibilityRequirements: [
-      "만 39세 이하 예비창업자 또는 창업 3년 이내 기업 대표자",
-      "혁신적인 창업 아이템을 보유한 자",
-      "6개월간 교육과정 참여 가능한 자",
-      "사업자등록증 보유 또는 등록 예정인 자",
-      "국내 거주자 (외국인의 경우 별도 심사)"
-    ],
-    
-    applicationProcess: [
-      "온라인 신청서 작성 및 제출",
-      "서류심사 (사업계획서, 재무계획서 등)",
-      "1차 면접심사 (사업성 및 실행력 평가)",
-      "2차 최종심사 (PT 발표)",
-      "최종 선정 및 결과 발표"
-    ],
-    
-    selectionCriteria: [
-      { criteria: "사업성 및 혁신성", weight: "30%" },
-      { criteria: "시장성 및 경쟁력", weight: "25%" },
-      { criteria: "사업화 가능성", weight: "20%" },
-      { criteria: "대표자 역량", weight: "15%" },
-      { criteria: "기타 (팀 구성 등)", weight: "10%" }
-    ],
-    
-    requiredDocuments: [
-      "사업계획서 (양식 제공)",
-      "재무계획서",
-      "대표자 이력서",
-      "사업자등록증 (기 보유시)",
-      "기타 증빙서류 (특허, 인증서 등)"
-    ],
-    
-    schedule: [
-      { phase: "공고 및 접수", period: "2024.11.01 ~ 2024.12.31" },
-      { phase: "서류심사", period: "2025.01.02 ~ 2025.01.10" },
-      { phase: "면접심사", period: "2025.01.13 ~ 2025.01.20" },
-      { phase: "최종발표", period: "2025.01.25" },
-      { phase: "교육시작", period: "2025.02.01" }
-    ],
-    
-    contact: {
-      department: "창업진흥원 창업교육실",
-      phone: "02-1234-5678",
-      email: "startup@kised.or.kr",
-      website: "https://www.kised.or.kr",
-      address: "서울시 강남구 테헤란로 123"
-    },
-    
-    successRate: "73%",
-    averageFunding: "7,500만원",
-    graduateCompanies: "1,247개사",
-    survivalRate: "85%"
+interface ApiProgramDetail {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  categoryLabel: string;
+  target: string;
+  amountMin: number | null;
+  amountMax: number | null;
+  supportRate: number | null;
+  region: string | null;
+  deadline: string;
+  daysLeft: number;
+  applicationUrl: string;
+  attachmentUrl: string | null;
+  tags: string[];
+  provider: {
+    id: string;
+    name: string;
+    type: string;
+    contact: string;
+    website: string | null;
+  };
+  createdAt: string;
+}
+
+export function ProgramDetailPage({ onNavigate, programId }: ProgramDetailPageProps) {
+  const [programData, setProgramData] = useState<ApiProgramDetail | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchProgramDetail = async () => {
+      if (!programId) {
+        setError('프로그램 ID가 제공되지 않았습니다.');
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        setIsLoading(true);
+        setError(null);
+
+        const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+        if (!apiBaseUrl) {
+          throw new Error('VITE_API_BASE_URL이 설정되지 않았습니다.');
+        }
+
+        const response = await fetch(`${apiBaseUrl}/api/programs/${programId}`);
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data: ApiProgramDetail = await response.json();
+        setProgramData(data);
+      } catch (err) {
+        console.error('Failed to fetch program detail:', err);
+        setError('프로그램 상세 정보를 불러오는데 실패했습니다.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProgramDetail();
+  }, [programId]);
+
+  // API 데이터를 UI 컴포넌트용 데이터로 변환하는 함수
+  const getDisplayData = () => {
+    if (!programData) return null;
+
+    const formatAmount = () => {
+      if (programData.amountMin && programData.amountMax) {
+        return `${programData.amountMin.toLocaleString()}원 ~ ${programData.amountMax.toLocaleString()}원`;
+      } else if (programData.amountMax) {
+        return `최대 ${programData.amountMax.toLocaleString()}원`;
+      } else if (programData.amountMin) {
+        return `최소 ${programData.amountMin.toLocaleString()}원`;
+      }
+      return "지원금액 정보 없음";
+    };
+
+    const formatDeadline = () => {
+      if (programData.deadline) {
+        return new Date(programData.deadline).toLocaleDateString('ko-KR');
+      }
+      return "마감일 정보 없음";
+    };
+
+    return {
+      ...programData,
+      amount: formatAmount(),
+      deadline: formatDeadline(),
+      organization: programData.provider?.name || "정보 없음",
+      category: programData.categoryLabel || programData.category || "정보 없음",
+      description: programData.description || "설명 정보 없음",
+      tags: programData.tags || [],
+      contact: {
+        department: programData.provider?.name || "정보 없음",
+        phone: programData.provider?.contact || "정보 없음",
+        email: "정보 없음",
+        website: programData.provider?.website || "정보 없음",
+        address: "정보 없음"
+      }
+    };
   };
 
+  const displayData = getDisplayData();
+
+  // API에서 가져온 실제 데이터가 없을 때 대비한 기본 정보
+  const getDefaultSupportContent = () => [
+    "상세 지원 내용 정보 없음"
+  ];
+
+  const getDefaultRequirements = () => [
+    "신청 자격 정보 없음"
+  ];
+
+  const getDefaultProcess = () => [
+    "신청 절차 정보 없음"
+  ];
+
+  const getDefaultCriteria = () => [
+    { criteria: "선정 기준 정보 없음", weight: "-" }
+  ];
+
+  const getDefaultDocuments = () => [
+    "제출 서류 정보 없음"
+  ];
+
+  const getDefaultSchedule = () => [
+    { phase: "일정 정보 없음", period: "-" }
+  ];
+
   const getStatusBadge = () => {
-    switch (programData.status) {
-      case "deadline-soon":
-        return <Badge variant="destructive">마감임박</Badge>;
-      case "active":
-        return <Badge variant="default" className="bg-blue-100 text-blue-700">접수중</Badge>;
-      default:
-        return <Badge variant="secondary">예정</Badge>;
+    if (!displayData) return <Badge variant="secondary">정보 없음</Badge>;
+
+    const daysLeft = displayData.daysLeft;
+    if (daysLeft <= 3) {
+      return <Badge variant="destructive">마감임박</Badge>;
+    } else if (daysLeft <= 7) {
+      return <Badge variant="destructive">마감임박</Badge>;
+    } else {
+      return <Badge variant="default" className="bg-blue-100 text-blue-700">접수중</Badge>;
     }
   };
 
   const getUrgencyColor = () => {
-    if (programData.daysLeft <= 3) return "text-red-600";
-    if (programData.daysLeft <= 7) return "text-orange-600";
+    if (!displayData) return "text-gray-600";
+    if (displayData.daysLeft <= 3) return "text-red-600";
+    if (displayData.daysLeft <= 7) return "text-orange-600";
     return "text-gray-600";
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       <Header onNavigate={onNavigate} />
-      
+
       <div className="py-8 px-4">
         <div className="max-w-6xl mx-auto">
           {/* 뒤로가기 버튼 */}
           <div className="mb-6">
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={() => onNavigate('main')}
               className="flex items-center gap-2"
             >
@@ -155,6 +205,33 @@ export function ProgramDetailPage({ onNavigate }: ProgramDetailPageProps) {
             </Button>
           </div>
 
+          {/* Error State */}
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-6 mb-6 text-center">
+              <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-red-800 mb-2">데이터를 불러올 수 없습니다</h3>
+              <p className="text-red-600">{error}</p>
+              <Button
+                variant="outline"
+                onClick={() => onNavigate('main')}
+                className="mt-4"
+              >
+                뒤로 가기
+              </Button>
+            </div>
+          )}
+
+          {/* Loading State */}
+          {isLoading && (
+            <div className="flex flex-col items-center justify-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#58d674] mb-4"></div>
+              <p className="text-gray-600">지원사업 상세 정보를 불러오는 중...</p>
+            </div>
+          )}
+
+          {/* 콘텐츠는 데이터가 있고 로딩이 아닐 때만 표시 */}
+          {!isLoading && !error && displayData && (
+            <>
           {/* 프로그램 헤더 */}
           <Card className="mb-8 bg-white/80 backdrop-blur-md shadow-xl border-0 rounded-[30px]">
             <CardHeader className="pb-6">
@@ -162,31 +239,31 @@ export function ProgramDetailPage({ onNavigate }: ProgramDetailPageProps) {
                 <div className="flex items-center gap-3">
                   {getStatusBadge()}
                   <Badge variant="outline" className="text-xs">
-                    {programData.category}
+                    {displayData.category}
                   </Badge>
                   <div className="flex items-center gap-1">
                     <Star className="w-4 h-4 text-[#58d674] fill-current" />
                     <span className="text-sm font-medium text-[#58d674]">
-                      매칭 {programData.matchScore}%
+                      매칭 정보 없음
                     </span>
                   </div>
                 </div>
                 <div className={`text-sm font-medium ${getUrgencyColor()}`}>
-                  D-{programData.daysLeft}
+                  D-{displayData.daysLeft}
                 </div>
               </div>
 
               <h1 className="text-3xl font-bold text-gray-800 mb-3">
-                {programData.title}
+                {displayData.title}
               </h1>
 
               <div className="flex items-center text-gray-600 mb-4">
                 <Building2 className="w-5 h-5 mr-2" />
-                <span className="text-lg">{programData.organization}</span>
+                <span className="text-lg">{displayData.organization}</span>
               </div>
 
               <p className="text-gray-700 leading-relaxed mb-6">
-                {programData.overview}
+                {displayData.description}
               </p>
 
               {/* 주요 정보 카드들 */}
@@ -196,7 +273,7 @@ export function ProgramDetailPage({ onNavigate }: ProgramDetailPageProps) {
                     <DollarSign className="w-5 h-5 text-[#58d674]" />
                     <span className="text-sm font-medium">지원규모</span>
                   </div>
-                  <p className="font-bold text-[#58d674]">{programData.amount}</p>
+                  <p className="font-bold text-[#58d674]">{displayData.amount}</p>
                 </div>
 
                 <div className="bg-gradient-to-r from-blue-100/50 to-blue-50/30 p-4 rounded-2xl">
@@ -204,7 +281,7 @@ export function ProgramDetailPage({ onNavigate }: ProgramDetailPageProps) {
                     <Calendar className="w-5 h-5 text-blue-600" />
                     <span className="text-sm font-medium">신청마감</span>
                   </div>
-                  <p className="font-bold text-blue-600">{programData.deadline}</p>
+                  <p className="font-bold text-blue-600">{displayData.deadline}</p>
                 </div>
 
                 <div className="bg-gradient-to-r from-purple-100/50 to-purple-50/30 p-4 rounded-2xl">
@@ -213,7 +290,7 @@ export function ProgramDetailPage({ onNavigate }: ProgramDetailPageProps) {
                     <span className="text-sm font-medium">경쟁률</span>
                   </div>
                   <p className="font-bold text-purple-600">
-                    {((programData.applicants / programData.maxApplicants) * 100).toFixed(1)}%
+                    정보 없음
                   </p>
                 </div>
 
@@ -222,7 +299,7 @@ export function ProgramDetailPage({ onNavigate }: ProgramDetailPageProps) {
                     <Award className="w-5 h-5 text-orange-600" />
                     <span className="text-sm font-medium">선정률</span>
                   </div>
-                  <p className="font-bold text-orange-600">{programData.successRate}</p>
+                  <p className="font-bold text-orange-600">정보 없음</p>
                 </div>
               </div>
 
@@ -230,10 +307,10 @@ export function ProgramDetailPage({ onNavigate }: ProgramDetailPageProps) {
               <div className="mt-6">
                 <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
                   <span>신청 현황</span>
-                  <span>{programData.applicants}/{programData.maxApplicants}명</span>
+                  <span>정보 없음</span>
                 </div>
-                <Progress 
-                  value={(programData.applicants / programData.maxApplicants) * 100} 
+                <Progress
+                  value={0}
                   className="h-3"
                 />
               </div>
@@ -262,16 +339,22 @@ export function ProgramDetailPage({ onNavigate }: ProgramDetailPageProps) {
                   </CardHeader>
                   <CardContent>
                     <p className="text-gray-700 leading-relaxed">
-                      {programData.description}
+                      {displayData.description}
                     </p>
                     <div className="mt-4">
                       <h4 className="font-medium mb-2">주요 특징</h4>
                       <div className="flex flex-wrap gap-2">
-                        {programData.tags.map((tag, index) => (
-                          <Badge key={index} variant="secondary" className="text-xs">
-                            {tag}
+                        {displayData.tags && displayData.tags.length > 0 ? (
+                          displayData.tags.map((tag, index) => (
+                            <Badge key={index} variant="secondary" className="text-xs">
+                              {tag}
+                            </Badge>
+                          ))
+                        ) : (
+                          <Badge variant="secondary" className="text-xs">
+                            태그 정보 없음
                           </Badge>
-                        ))}
+                        )}
                       </div>
                     </div>
                   </CardContent>
@@ -288,15 +371,15 @@ export function ProgramDetailPage({ onNavigate }: ProgramDetailPageProps) {
                     <div className="space-y-4">
                       <div className="flex justify-between items-center">
                         <span className="text-gray-600">평균 지원금액</span>
-                        <span className="font-bold text-[#58d674]">{programData.averageFunding}</span>
+                        <span className="font-bold text-[#58d674]">정보 없음</span>
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-gray-600">배출 기업</span>
-                        <span className="font-bold">{programData.graduateCompanies}</span>
+                        <span className="font-bold">정보 없음</span>
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-gray-600">생존율</span>
-                        <span className="font-bold text-green-600">{programData.survivalRate}</span>
+                        <span className="font-bold text-green-600">정보 없음</span>
                       </div>
                     </div>
                   </CardContent>
@@ -314,7 +397,7 @@ export function ProgramDetailPage({ onNavigate }: ProgramDetailPageProps) {
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {programData.supportContent.map((item, index) => (
+                    {getDefaultSupportContent().map((item, index) => (
                       <div key={index} className="flex items-start gap-3 p-4 bg-gray-50/50 rounded-xl">
                         <CheckCircle className="w-5 h-5 text-[#58d674] mt-0.5 flex-shrink-0" />
                         <span className="text-gray-700">{item}</span>
@@ -336,7 +419,7 @@ export function ProgramDetailPage({ onNavigate }: ProgramDetailPageProps) {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3">
-                      {programData.eligibilityRequirements.map((req, index) => (
+                      {getDefaultRequirements().map((req, index) => (
                         <div key={index} className="flex items-start gap-3">
                           <div className="w-6 h-6 bg-[#58d674] text-white rounded-full flex items-center justify-center text-sm font-bold mt-0.5">
                             {index + 1}
@@ -357,7 +440,7 @@ export function ProgramDetailPage({ onNavigate }: ProgramDetailPageProps) {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3">
-                      {programData.selectionCriteria.map((item, index) => (
+                      {getDefaultCriteria().map((item, index) => (
                         <div key={index} className="flex items-center justify-between p-3 bg-gray-50/50 rounded-xl">
                           <span className="text-gray-700">{item.criteria}</span>
                           <Badge variant="outline" className="text-[#58d674]">
@@ -382,7 +465,7 @@ export function ProgramDetailPage({ onNavigate }: ProgramDetailPageProps) {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
-                      {programData.applicationProcess.map((step, index) => (
+                      {getDefaultProcess().map((step, index) => (
                         <div key={index} className="flex items-start gap-4">
                           <div className="w-8 h-8 bg-gradient-to-r from-[#58d674] to-[#4bc961] text-white rounded-full flex items-center justify-center font-bold">
                             {index + 1}
@@ -405,7 +488,7 @@ export function ProgramDetailPage({ onNavigate }: ProgramDetailPageProps) {
                   </CardHeader>
                   <CardContent>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {programData.requiredDocuments.map((doc, index) => (
+                      {getDefaultDocuments().map((doc, index) => (
                         <div key={index} className="flex items-center gap-3 p-3 bg-gray-50/50 rounded-xl">
                           <FileText className="w-4 h-4 text-gray-500" />
                           <span className="text-gray-700">{doc}</span>
@@ -427,7 +510,7 @@ export function ProgramDetailPage({ onNavigate }: ProgramDetailPageProps) {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {programData.schedule.map((item, index) => (
+                    {getDefaultSchedule().map((item, index) => (
                       <div key={index} className="flex items-center justify-between p-4 bg-gray-50/50 rounded-xl">
                         <div className="flex items-center gap-3">
                           <Clock className="w-5 h-5 text-[#58d674]" />
@@ -455,20 +538,20 @@ export function ProgramDetailPage({ onNavigate }: ProgramDetailPageProps) {
                       <div className="space-y-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-600 mb-1">담당부서</label>
-                          <p className="text-gray-800">{programData.contact.department}</p>
+                          <p className="text-gray-800">{displayData.contact.department}</p>
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-600 mb-1">전화번호</label>
                           <div className="flex items-center gap-2">
                             <Phone className="w-4 h-4 text-[#58d674]" />
-                            <p className="text-gray-800">{programData.contact.phone}</p>
+                            <p className="text-gray-800">{displayData.contact.phone}</p>
                           </div>
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-600 mb-1">이메일</label>
                           <div className="flex items-center gap-2">
                             <Mail className="w-4 h-4 text-[#58d674]" />
-                            <p className="text-gray-800">{programData.contact.email}</p>
+                            <p className="text-gray-800">{displayData.contact.email}</p>
                           </div>
                         </div>
                       </div>
@@ -478,14 +561,18 @@ export function ProgramDetailPage({ onNavigate }: ProgramDetailPageProps) {
                           <label className="block text-sm font-medium text-gray-600 mb-1">웹사이트</label>
                           <div className="flex items-center gap-2">
                             <ExternalLink className="w-4 h-4 text-[#58d674]" />
-                            <a href={programData.contact.website} className="text-[#58d674] hover:underline">
-                              {programData.contact.website}
-                            </a>
+                            {displayData.contact.website !== "정보 없음" ? (
+                              <a href={displayData.contact.website} className="text-[#58d674] hover:underline">
+                                {displayData.contact.website}
+                              </a>
+                            ) : (
+                              <span className="text-gray-600">{displayData.contact.website}</span>
+                            )}
                           </div>
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-600 mb-1">주소</label>
-                          <p className="text-gray-800">{programData.contact.address}</p>
+                          <p className="text-gray-800">{displayData.contact.address}</p>
                         </div>
                       </div>
                     </div>
@@ -511,23 +598,26 @@ export function ProgramDetailPage({ onNavigate }: ProgramDetailPageProps) {
 
           {/* CTA 버튼 */}
           <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
-            <Button 
-              size="lg" 
+            <Button
+              size="lg"
               className="bg-[#58d674] hover:bg-[#4bc961] text-white px-8 py-3"
               onClick={() => onNavigate('matching')}
             >
               <Target className="w-5 h-5 mr-2" />
               AI 매칭 분석 시작하기
             </Button>
-            <Button 
-              size="lg" 
+            <Button
+              size="lg"
               variant="outline"
               className="px-8 py-3"
+              disabled
             >
               <BookOpen className="w-5 h-5 mr-2" />
               신청서 다운로드
             </Button>
           </div>
+            </>
+          )}
         </div>
       </div>
 

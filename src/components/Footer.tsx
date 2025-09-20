@@ -3,7 +3,7 @@ import { VersionBadge } from "./VersionInfo";
 import type { PageType } from "./Router";
 
 interface FooterProps {
-  onNavigate: (page: PageType) => void;
+  onNavigate: (page: PageType, programId?: string) => void;
 }
 
 export function Footer({ onNavigate }: FooterProps) {

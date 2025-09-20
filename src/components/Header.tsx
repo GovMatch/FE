@@ -5,7 +5,7 @@ import type { PageType } from "./Router";
 import { useAuth } from "./AuthContext";
 
 interface HeaderProps {
-  onNavigate: (page: PageType) => void;
+  onNavigate: (page: PageType, programId?: string) => void;
 }
 
 export function Header({ onNavigate }: HeaderProps) {

@@ -14,7 +14,7 @@ import { Building2, Users, Calendar, DollarSign, CheckCircle, ArrowRight, ArrowL
 import type { PageType } from "../components/Router";
 
 interface MatchingPageProps {
-  onNavigate: (page: PageType) => void;
+  onNavigate: (page: PageType, programId?: string) => void;
 }
 
 export function MatchingPage({ onNavigate }: MatchingPageProps) {
@@ -49,7 +49,7 @@ export function MatchingPage({ onNavigate }: MatchingPageProps) {
 
   const handleSubmit = async () => {
     try {
-      const response = await fetch("http://localhost:3001/api/programs/matching", {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/programs/matching`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

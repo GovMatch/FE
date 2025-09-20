@@ -12,7 +12,7 @@ import { Mail, Lock, Eye, EyeOff, ArrowRight, Shield, Users } from "lucide-react
 import type { PageType } from "../components/Router";
 
 interface LoginPageProps {
-  onNavigate: (page: PageType) => void;
+  onNavigate: (page: PageType, programId?: string) => void;
 }
 
 export function LoginPage({ onNavigate }: LoginPageProps) {

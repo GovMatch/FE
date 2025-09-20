@@ -31,7 +31,7 @@ import {
 import type { PageType } from "../components/Router";
 
 interface VoucherDetailPageProps {
-  onNavigate: (page: PageType) => void;
+  onNavigate: (page: PageType, programId?: string) => void;
 }
 
 export function VoucherDetailPage({ onNavigate }: VoucherDetailPageProps) {

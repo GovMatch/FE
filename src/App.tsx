@@ -5,7 +5,7 @@ import { AuthProvider } from "./components/AuthContext";
 export default function App() {
   const [currentPage, setCurrentPage] = useState<PageType>('main');
 
-  const handleNavigate = (page: PageType) => {
+  const handleNavigate = (page: PageType, _programId?: string) => {
     setCurrentPage(page);
   };
 

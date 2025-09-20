@@ -6,7 +6,7 @@ import { useAuth } from "./AuthContext";
 import type { PageType } from "./Router";
 
 interface MainHeroSectionProps {
-  onNavigate: (page: PageType) => void;
+  onNavigate: (page: PageType, programId?: string) => void;
 }
 
 export function MainHeroSection({ onNavigate }: MainHeroSectionProps) {

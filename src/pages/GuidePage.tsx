@@ -8,7 +8,7 @@ import { CheckCircle, FileText, Search, UserCheck, AlertCircle, Star, HelpCircle
 import type { PageType } from "../components/Router";
 
 interface GuidePageProps {
-  onNavigate: (page: PageType) => void;
+  onNavigate: (page: PageType, programId?: string) => void;
 }
 
 export function GuidePage({ onNavigate }: GuidePageProps) {

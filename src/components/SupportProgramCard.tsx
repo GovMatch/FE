@@ -18,11 +18,11 @@ interface SupportProgramProps {
   applicants: number;
   maxApplicants: number;
   status: "upcoming" | "active" | "deadline-soon" | "closed";
-  onNavigate?: (page: string) => void;
+  onNavigate?: (page: string, programId?: string) => void;
 }
 
 export function SupportProgramCard({
-  id: _id,
+  id,
   title,
   organization,
   category,
@@ -115,14 +115,14 @@ export function SupportProgramCard({
           <div className="mb-3 sm:mb-4">
             <p className="text-xs text-gray-500 mb-2">주요 요건:</p>
             <div className="flex flex-wrap gap-1">
-              {requirements.slice(0, 3).map((req, index) => (
+              {(requirements || []).slice(0, 3).map((req, index) => (
                 <Badge key={index} variant="outline" className="text-xs py-1">
                   {req}
                 </Badge>
               ))}
-              {requirements.length > 3 && (
+              {(requirements || []).length > 3 && (
                 <Badge variant="outline" className="text-xs py-1">
-                  +{requirements.length - 3}개
+                  +{(requirements || []).length - 3}개
                 </Badge>
               )}
             </div>
@@ -147,10 +147,10 @@ export function SupportProgramCard({
             <Users className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
             <span>경쟁률 {(applicants / maxApplicants * 100).toFixed(1)}%</span>
           </div>
-          <Button 
-            size="sm" 
+          <Button
+            size="sm"
             className="bg-[#58d674] hover:bg-[#4bc961] text-white rounded-xl text-xs sm:text-sm h-7 sm:h-8 px-3 sm:px-4"
-            onClick={() => onNavigate?.('program-detail')}
+            onClick={() => onNavigate?.('program-detail', id)}
           >
             자세히 보기
             <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 ml-1" />

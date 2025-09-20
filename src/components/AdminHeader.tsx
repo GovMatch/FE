@@ -5,7 +5,7 @@ import { User, Settings, LogOut, Home, Shield, Bell } from "lucide-react";
 import type { PageType } from "./Router";
 
 interface AdminHeaderProps {
-  onNavigate: (page: PageType) => void;
+  onNavigate: (page: PageType, programId?: string) => void;
 }
 
 export function AdminHeader({ onNavigate }: AdminHeaderProps) {
