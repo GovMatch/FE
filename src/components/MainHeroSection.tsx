@@ -7,15 +7,31 @@ import type { PageType } from "./Router";
 
 interface MainHeroSectionProps {
   onNavigate: (page: PageType, programId?: string) => void;
+  totalPrograms?: number;
+  deadlineSoonCount?: number;
+  currentFilteredCount?: number;
+  activeFilter?: string | null;
 }
 
-export function MainHeroSection({ onNavigate }: MainHeroSectionProps) {
+export function MainHeroSection({ onNavigate, totalPrograms = 0, deadlineSoonCount = 0, currentFilteredCount = 0, activeFilter = null }: MainHeroSectionProps) {
   const { user } = useAuth();
-  
+
   const stats = [
-    { label: "매칭 가능 지원사업", value: "127개", icon: Target },
-    { label: "이번 주 신규 등록", value: "15개", icon: Zap },
-    { label: "마감 임박 (D-7)", value: "8개", icon: Search }
+    {
+      label: "매칭 가능 지원사업",
+      value: `${totalPrograms}개`,
+      icon: Target
+    },
+    {
+      label: "이번 주 신규 등록",
+      value: "0개",
+      icon: Zap
+    },
+    {
+      label: "마감 임박 (D-7)",
+      value: `${activeFilter === 'deadline-soon' ? currentFilteredCount : deadlineSoonCount}개`,
+      icon: Search
+    }
   ];
 
   // 사용자별 매칭 정보 (로그인 시에만 표시)
@@ -282,7 +298,9 @@ export function MainHeroSection({ onNavigate }: MainHeroSectionProps) {
               <span className="font-bold text-orange-800 text-base sm:text-lg">긴급 알림</span>
             </div>
             <p className="text-orange-700 text-sm sm:text-base lg:text-lg font-medium px-2">
-              <span className="font-bold bg-gradient-to-r from-red-600 to-orange-600 bg-clip-text text-transparent">8개 지원사업</span>이 일주일 내 마감됩니다. 
+              <span className="font-bold bg-gradient-to-r from-red-600 to-orange-600 bg-clip-text text-transparent">
+                {activeFilter === 'deadline-soon' ? currentFilteredCount : deadlineSoonCount}개 지원사업
+              </span>이 7일 내 마감됩니다.
               지금 확인하고 놓치지 마세요!
             </p>
           </div>

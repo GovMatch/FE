@@ -11,6 +11,7 @@ import { PromoCodeInput } from "../components/PromoCodeInput";
 import { Footer } from "../components/Footer";
 import type { PageType } from "../components/Router";
 import { imgGroup47242, imgGroup47243 } from "../imports/svg-gjy2d";
+import { useState } from "react";
 
 interface MainPageProps {
   onNavigate: (page: PageType, programId?: string) => void;
@@ -18,6 +19,35 @@ interface MainPageProps {
 }
 
 export function MainPage({ onNavigate, currentPage }: MainPageProps) {
+  const [activeFilter, setActiveFilter] = useState<string | null>(null);
+  const [selectedField, setSelectedField] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState<string | null>(null);
+  const [statsData, setStatsData] = useState({
+    totalPrograms: 0,
+    deadlineSoonCount: 0
+  });
+  const [currentFilteredCount, setCurrentFilteredCount] = useState(0);
+
+  const handleFilterChange = (filter: string | null) => {
+    setActiveFilter(filter);
+  };
+
+  const handleFieldChange = (field: string | null) => {
+    setSelectedField(field);
+  };
+
+  const handleSearchChange = (search: string | null) => {
+    setSearchTerm(search);
+  };
+
+  const handleStatsUpdate = (totalPrograms: number, deadlineSoonCount: number) => {
+    setStatsData({ totalPrograms, deadlineSoonCount });
+  };
+
+  const handleFilteredCountUpdate = (count: number) => {
+    setCurrentFilteredCount(count);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 relative overflow-x-hidden">
       {/* Geometric Background Pattern */}
@@ -69,7 +99,13 @@ export function MainPage({ onNavigate, currentPage }: MainPageProps) {
         <div className="relative">
           <div className="absolute inset-0 bg-gradient-to-r from-white/80 via-white/60 to-white/80 backdrop-blur-sm" />
           <div className="relative z-10">
-            <MainHeroSection onNavigate={onNavigate} />
+            <MainHeroSection
+              onNavigate={onNavigate}
+              totalPrograms={statsData.totalPrograms}
+              deadlineSoonCount={statsData.deadlineSoonCount}
+              currentFilteredCount={currentFilteredCount}
+              activeFilter={activeFilter}
+            />
           </div>
         </div>
         
@@ -88,11 +124,28 @@ export function MainPage({ onNavigate, currentPage }: MainPageProps) {
           </div>
           
           <div className="bg-white/70 backdrop-blur-md rounded-[20px] sm:rounded-[40px] p-4 sm:p-6 lg:p-8 shadow-xl border border-white/30 mb-4 sm:mb-8">
-            <SearchAndFilter />
+            <SearchAndFilter
+              onFilterChange={handleFilterChange}
+              activeFilter={activeFilter}
+              onFieldChange={handleFieldChange}
+              selectedField={selectedField}
+              onSearchChange={handleSearchChange}
+              searchTerm={searchTerm}
+              deadlineImminentCount={
+                activeFilter === 'deadline-soon' ? currentFilteredCount : statsData.deadlineSoonCount
+              }
+            />
           </div>
-          
+
           <div className="bg-white/70 backdrop-blur-md rounded-[20px] sm:rounded-[40px] p-4 sm:p-6 lg:p-8 shadow-xl border border-white/30 mb-4 sm:mb-8">
-            <SupportProgramsSection onNavigate={onNavigate} />
+            <SupportProgramsSection
+              onNavigate={onNavigate}
+              activeFilter={activeFilter}
+              selectedField={selectedField}
+              searchTerm={searchTerm}
+              onStatsUpdate={handleStatsUpdate}
+              onFilteredCountUpdate={handleFilteredCountUpdate}
+            />
           </div>
         </div>
         

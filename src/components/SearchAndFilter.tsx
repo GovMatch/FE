@@ -3,14 +3,43 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Badge } from "./ui/badge";
+import { useState } from "react";
 
-export function SearchAndFilter() {
+interface SearchAndFilterProps {
+  onFilterChange?: (filter: string | null) => void;
+  activeFilter?: string | null;
+  onFieldChange?: (field: string | null) => void;
+  selectedField?: string | null;
+  deadlineImminentCount?: number;
+  onSearchChange?: (searchTerm: string | null) => void;
+  searchTerm?: string | null;
+}
+
+export function SearchAndFilter({ onFilterChange, activeFilter, onFieldChange, selectedField, deadlineImminentCount = 0, onSearchChange, searchTerm }: SearchAndFilterProps) {
+  const [inputValue, setInputValue] = useState(searchTerm || "");
   const quickFilters = [
-    { label: "마감 임박", count: 12, color: "destructive" },
-    { label: "신규 등록", count: 8, color: "default" },
-    { label: "인기 매칭", count: 15, color: "secondary" },
-    { label: "고액 지원", count: 6, color: "outline" }
+    { label: "마감 임박", count: deadlineImminentCount, color: "destructive", id: "deadline-soon" },
+    { label: "신규 등록", count: 0, color: "default", id: "new-registration" },
+    { label: "인기 매칭", count: 0, color: "secondary", id: "popular-matching" },
+    { label: "고액 지원", count: 0, color: "outline", id: "high-amount" }
   ];
+
+  const handleFilterClick = (filterId: string) => {
+    const newFilter = activeFilter === filterId ? null : filterId;
+    onFilterChange?.(newFilter);
+  };
+
+  const handleSearch = () => {
+    const trimmedValue = inputValue.trim();
+    onSearchChange?.(trimmedValue || null);
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
+
 
   return (
     <div className="bg-white rounded-3xl shadow-[20px_20px_80px_0px_rgba(0,0,0,0.1)] p-8 mb-8">
@@ -18,10 +47,16 @@ export function SearchAndFilter() {
       <div className="relative mb-6">
         <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
         <Input
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          onKeyPress={handleKeyPress}
           placeholder="지원사업명, 키워드, 기관명으로 검색..."
           className="pl-12 pr-4 py-3 text-lg border-2 border-gray-200 rounded-2xl focus:border-[#58d674] focus:ring-0 bg-gray-50"
         />
-        <Button className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-[#58d674] hover:bg-[#4bc961] text-white px-6 rounded-xl">
+        <Button
+          onClick={handleSearch}
+          className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-[#58d674] hover:bg-[#4bc961] text-white px-6 rounded-xl"
+        >
           검색
         </Button>
       </div>
@@ -30,10 +65,13 @@ export function SearchAndFilter() {
       <div className="flex flex-wrap items-center gap-3 mb-6">
         <span className="text-sm font-medium text-gray-600 mr-2">빠른 필터:</span>
         {quickFilters.map((filter) => (
-          <Badge 
-            key={filter.label} 
-            variant={filter.color as any}
-            className="px-4 py-2 cursor-pointer hover:opacity-80 transition-opacity"
+          <Badge
+            key={filter.label}
+            variant={activeFilter === filter.id ? "default" : filter.color as any}
+            className={`px-4 py-2 cursor-pointer hover:opacity-80 transition-opacity ${
+              activeFilter === filter.id ? "bg-[#58d674] text-white" : ""
+            }`}
+            onClick={() => handleFilterClick(filter.id)}
           >
             {filter.label} ({filter.count})
           </Badge>
@@ -42,17 +80,21 @@ export function SearchAndFilter() {
 
       {/* Advanced Filters */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Select>
+        <Select value={selectedField || "all"} onValueChange={(value) => onFieldChange?.(value === "all" ? null : value)}>
           <SelectTrigger className="bg-gray-50 border-gray-200 rounded-xl">
             <Building2 className="w-4 h-4 mr-2 text-gray-500" />
             <SelectValue placeholder="지원 분야" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="startup">창업지원</SelectItem>
-            <SelectItem value="rd">R&D 개발</SelectItem>
-            <SelectItem value="tech">기술혁신</SelectItem>
-            <SelectItem value="export">수출지원</SelectItem>
-            <SelectItem value="employment">고용지원</SelectItem>
+            <SelectItem value="all">전체 분야</SelectItem>
+            <SelectItem value="01">금융</SelectItem>
+            <SelectItem value="02">기술</SelectItem>
+            <SelectItem value="03">인력</SelectItem>
+            <SelectItem value="04">수출</SelectItem>
+            <SelectItem value="05">내수</SelectItem>
+            <SelectItem value="06">창업</SelectItem>
+            <SelectItem value="07">경영</SelectItem>
+            <SelectItem value="09">기타</SelectItem>
           </SelectContent>
         </Select>
 

@@ -5,6 +5,11 @@ import { useState, useEffect } from "react";
 
 interface SupportProgramsSectionProps {
   onNavigate?: (page: string, programId?: string) => void;
+  activeFilter?: string | null;
+  selectedField?: string | null;
+  searchTerm?: string | null;
+  onStatsUpdate?: (totalPrograms: number, deadlineSoonCount: number) => void;
+  onFilteredCountUpdate?: (count: number) => void;
 }
 
 interface ApiProgramData {
@@ -31,6 +36,7 @@ interface ProgramData {
   applicants: number;
   maxApplicants: number;
   status: "deadline-soon" | "active" | "upcoming";
+  categoryCode?: string; // 필터링용 카테고리 코드
 }
 
 interface ProgramsResponse {
@@ -47,7 +53,7 @@ const transformApiData = (apiData: ApiProgramData): ProgramData => {
     id: apiData.id,
     title: apiData.title,
     organization: apiData.organization || "정부기관", // 기본값
-    category: apiData.categoryLabel || apiData.category,
+    category: apiData.categoryLabel || apiData.category, // UI에서 표시할 때는 라벨 사용
     amount: apiData.amount || "지원금액 미정",
     deadline: apiData.deadline || "마감일 미정",
     daysLeft: apiData.daysLeft || 0,
@@ -56,11 +62,13 @@ const transformApiData = (apiData: ApiProgramData): ProgramData => {
     matchScore: apiData.matchScore,
     applicants: apiData.applicants || 0,
     maxApplicants: apiData.maxApplicants || 100,
-    status: apiData.status || "active"
+    status: apiData.status || "active",
+    // 필터링을 위해 원본 카테고리 코드도 보존
+    categoryCode: apiData.category
   };
 };
 
-export function SupportProgramsSection({ onNavigate }: SupportProgramsSectionProps) {
+export function SupportProgramsSection({ onNavigate, activeFilter, selectedField, searchTerm, onStatsUpdate, onFilteredCountUpdate }: SupportProgramsSectionProps) {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [supportPrograms, setSupportPrograms] = useState<ProgramData[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -68,6 +76,22 @@ export function SupportProgramsSection({ onNavigate }: SupportProgramsSectionPro
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const fetchUrgentCount = async (): Promise<number> => {
+    try {
+      const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+      if (!apiBaseUrl) return 0;
+
+      const response = await fetch(`${apiBaseUrl}/api/programs/urgent`);
+      if (!response.ok) return 0;
+
+      const data = await response.json();
+      return data.programs?.length || 0;
+    } catch (error) {
+      console.error('마감 임박 개수 조회 실패:', error);
+      return 0;
+    }
+  };
 
   const fetchPrograms = async (page = 1) => {
     try {
@@ -80,16 +104,30 @@ export function SupportProgramsSection({ onNavigate }: SupportProgramsSectionPro
         throw new Error('API_BASE_URL이 설정되지 않았습니다.');
       }
 
-      // API 요청 파라미터 구성
-      const params = new URLSearchParams({
-        page: page.toString(),
-        limit: '6',
-        sortBy: 'deadline',
-        sortOrder: 'asc',
-        activeOnly: 'true'
-      });
+      let response;
 
-      const response = await fetch(`${apiBaseUrl}/api/programs?${params}`);
+      if (activeFilter === 'deadline-soon') {
+        // 마감 임박 필터일 때는 전용 엔드포인트 사용
+        response = await fetch(`${apiBaseUrl}/api/programs/urgent`);
+      } else if (searchTerm) {
+        // 검색어가 있는 경우 검색 엔드포인트 사용
+        response = await fetch(`${apiBaseUrl}/api/programs?search=${encodeURIComponent(searchTerm)}&limit=50`);
+      } else {
+        // 일반 필터일 때는 기존 엔드포인트 사용
+        const params = new URLSearchParams({
+          page: page.toString(),
+          limit: '6',
+          sortBy: 'deadline',
+          sortOrder: 'asc'
+        });
+
+        // 지원 분야 필터가 선택된 경우 추가 파라미터
+        if (selectedField) {
+          params.append('category', selectedField);
+        }
+
+        response = await fetch(`${apiBaseUrl}/api/programs?${params}`);
+      }
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -97,22 +135,65 @@ export function SupportProgramsSection({ onNavigate }: SupportProgramsSectionPro
 
       const data: ProgramsResponse = await response.json();
 
-      // 디버깅을 위한 로그
-      console.log('API Response:', data);
-      console.log('Data.programs type:', typeof data.programs);
-      console.log('Data.programs isArray:', Array.isArray(data.programs));
-      console.log('Data.programs content:', data.programs);
-      console.log('First program structure:', data.programs?.[0]);
 
       // 응답 데이터를 UI 컴포넌트용 형태로 변환
-      const transformedPrograms = Array.isArray(data.programs)
+      let transformedPrograms = Array.isArray(data.programs)
         ? data.programs.map(transformApiData)
         : [];
 
-      setSupportPrograms(transformedPrograms);
-      setTotalCount(data.total || 0);
-      setTotalPages(data.totalPages || 1);
-      setCurrentPage(data.page || 1);
+
+      // 지원 분야 필터링 (클라이언트 사이드)
+      if (selectedField) {
+        transformedPrograms = transformedPrograms.filter((program) => {
+          // categoryCode(원본 코드)로 필터링
+          return program.categoryCode === selectedField;
+        });
+      }
+
+      if (activeFilter === 'deadline-soon' || searchTerm) {
+        // 마감 임박 필터나 검색일 때는 클라이언트에서 페이징 처리
+        const totalFiltered = transformedPrograms.length;
+        const itemsPerPage = 6;
+        const totalPagesFiltered = Math.ceil(totalFiltered / itemsPerPage);
+        const startIndex = (page - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+
+        setSupportPrograms(transformedPrograms.slice(startIndex, endIndex));
+        setTotalCount(totalFiltered);
+        setTotalPages(totalPagesFiltered);
+        setCurrentPage(page);
+      } else {
+        setSupportPrograms(transformedPrograms);
+        setTotalCount(data.total || 0);
+        setTotalPages(data.totalPages || 1);
+        setCurrentPage(data.page || 1);
+      }
+
+      // 통계 데이터를 MainPage로 전달 (필터가 적용되지 않은 원본 데이터 기준)
+      if (onStatsUpdate && !activeFilter && !selectedField && !searchTerm) {
+        // 마감 임박 개수를 별도로 가져오기
+        fetchUrgentCount().then(urgentCount => {
+          onStatsUpdate(data.total || 0, urgentCount);
+        });
+      }
+
+      // 필터링된 결과의 개수를 MainPage로 전달
+      if (onFilteredCountUpdate) {
+        if (activeFilter === 'deadline-soon' || searchTerm) {
+          // 마감 임박 필터나 검색일 때는 전체 개수 전달 (페이징 전)
+          const allFilteredPrograms = Array.isArray(data.programs)
+            ? data.programs.map(transformApiData)
+            : [];
+
+          const finalCount = selectedField
+            ? allFilteredPrograms.filter(program => program.categoryCode === selectedField).length
+            : allFilteredPrograms.length;
+
+          onFilteredCountUpdate(finalCount);
+        } else {
+          onFilteredCountUpdate(transformedPrograms.length);
+        }
+      }
 
     } catch (err) {
       console.error('Failed to fetch programs:', err);
@@ -130,7 +211,7 @@ export function SupportProgramsSection({ onNavigate }: SupportProgramsSectionPro
 
   useEffect(() => {
     fetchPrograms();
-  }, []);
+  }, [activeFilter, selectedField, searchTerm]);
 
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
@@ -202,6 +283,7 @@ export function SupportProgramsSection({ onNavigate }: SupportProgramsSectionPro
             ))}
           </div>
         )}
+
 
         {/* Empty State */}
         {!isLoading && supportPrograms && supportPrograms.length === 0 && !error && (
